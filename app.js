@@ -18,6 +18,11 @@ var connector = new builder.ChatConnector({
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector);
+bot.dialog('/', function (session) {
+    //respond with user's message
+    session.send("You said " + session.message.text);
+});
+
 app.post('/api/messages', connector.listen());
 
 // view engine setup
