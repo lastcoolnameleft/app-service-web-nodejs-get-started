@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var builder = require('botbuilder');
 var Roll = require('roll');
+var config = require('./config');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -31,6 +32,50 @@ bot.dialog('helpDialog', function (session) {
   session.send(sendStr);
   // Send help message and end dialog.
 }).triggerAction({ matches: /help/i });
+
+bot.dialog('rollDialog', (session, args) => {
+  try {
+    let inputSplit = args.intent.matched.input.split(' ');
+    let roll = new Roll();
+    let result = roll.roll(inputSplit[1]).result;
+    session.endDialog('You rolled the following die: ' + inputSplit[1] + '.  Result: ' + result);
+  } catch (e) {
+    session.endDialog('I do not understand the command.  Try "roll 3d6"');
+  }
+}).triggerAction({ matches: /roll/i });
+
+bot.dialog('createCharacterDialog', [
+  (session) => {
+    session.userData.character = {};
+    builder.Prompts.text(session, 'What do you want to name your character?');
+  },
+  (session, results) => {
+    session.userData.character.name = results.response;
+    session.send('Welcome, ' + session.userData.character.name);
+    builder.Prompts.choice(session, "What race?", Object.keys(config.races));
+  },
+  (session, results) => {
+    session.userData.character.race = results.response.entity;
+    session.send(session.userData.character.race + ' is a good choice.');
+    builder.Prompts.choice(session, "What class?", Object.keys(config.classes));
+  },
+  (session, results) => {
+    session.userData.character.class = results.response.entity;
+    session.endDialog(session.userData.character.class + ' is a good choice.');
+  }
+]).triggerAction({ matches: /character/i });
+
+
+bot.dialog('whoami', (session) => {
+  if (!session.userData.character) {
+    session.endDialog('You need to create a character first.  Type: character');
+  } else {
+    let response = 'name: ' + session.userData.character.name + "\n\n"
+      + 'race: ' + session.userData.character.race + "\n\n"
+      + 'class: ' + session.userData.character.class;
+      session.endDialog(response);
+  }
+}).triggerAction({ matches: /whoami/i });
 
 app.post('/api/messages', connector.listen());
 
