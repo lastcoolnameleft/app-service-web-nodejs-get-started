@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 var builder = require('botbuilder');
 var Roll = require('roll');
 var config = require('./config');
-
 var routes = require('./routes/index');
 var users = require('./routes/users');
 

@@ -1,11 +1,11 @@
-function config () {
-    let classes = {
+let config = {
+  'classes': {
         'wizard': {},
         'rogue': {},
         'warrior': {},
-    };
+    },
 
-    let races = {
+  'races': {
         'human': {
             'modifier': {},
             'size': 'medium',
