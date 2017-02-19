@@ -17,11 +17,20 @@ var connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
-var bot = new builder.UniversalBot(connector);
-bot.dialog('/', function (session) {
-    //respond with user's message
-    session.send("You said " + session.message.text);
+//var bot = new builder.UniversalBot(connector);
+var bot = new builder.UniversalBot(connector, function(session) {
+    session.send('Try one of these commands: help');
 });
+
+// Answer help related questions like "what can I say?"
+bot.dialog('helpDialog', function (session) {
+  let sendStr = "Supported Commands:\n\n"
+    + "* roll <xdy>: Roll a die. (e.g. roll 3d6)\n"
+    + "* character: Create a new character\n"
+    + "* whoami: See character details";
+  session.send(sendStr);
+  // Send help message and end dialog.
+}).triggerAction({ matches: /help/i });
 
 app.post('/api/messages', connector.listen());
 
